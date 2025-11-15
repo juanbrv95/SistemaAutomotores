@@ -151,7 +151,7 @@
                         <h5><i class="bi bi-pie-chart me-2"></i>Distribución de Ingresos</h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="ingresosChart" width="400" height="200"></canvas>
+                        <canvas id="ingresosChart" width="200" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                         <h5><i class="bi bi-pie-chart me-2"></i>Distribución de Egresos</h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="egresosChart" width="400" height="200"></canvas>
+                        <canvas id="egresosChart" width="200" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -423,6 +423,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'bottom'
@@ -455,6 +456,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'bottom'
