@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎟️ Gestión de Tickets - Sistema Automotores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-car-front-fill me-2"></i>
+                Sistema Automotores
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-speedometer2 me-1"></i><span style="color: #ff8c00; font-weight: 600;">Facultad de Agronomía</span></a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/propietarios"><i class="bi bi-people me-1"></i>FAUBA</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/vehiculos-viajes"><i class="bi bi-car-front me-1"></i>Vehículos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/mantenimientos"><i class="bi bi-tools me-1"></i>Mantenimientos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/tickets"><i class="bi bi-receipt me-1"></i>Tickets</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="bi bi-receipt me-2"></i>Gestión de Tickets</h2>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <form id="ticketForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label" for="ticket-fecha">Fecha *</label>
+                        <input type="date" id="ticket-fecha" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="ticket-sistema">Sistema *</label>
+                        <select id="ticket-sistema" class="form-select" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="viajes">Sistema de Viajes</option>
+                            <option value="mantenimientos">Mantenimientos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="ticket-descripcion">Descripción</label>
+                        <input type="text" id="ticket-descripcion" class="form-control" placeholder="Detalle del ticket">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary w-100" onclick="saveTicket()">
+                            <i class="bi bi-check2-circle me-1"></i>Validar ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Sistema</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tickets-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadTickets);
+
+        async function loadTickets() {
+            try {
+                const res = await fetch('/api/tickets');
+                const json = await res.json();
+                if (json.success) {
+                    renderTickets(json.data);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderTickets(tickets) {
+            const tbody = document.getElementById('tickets-tbody');
+            if (!tickets || tickets.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No hay tickets</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = tickets.map(t => `
+                <tr>
+                    <td>${new Date(t.fecha).toLocaleDateString()}</td>
+                    <td>${t.sistema === 'viajes' ? 'Sistema de Viajes' : 'Mantenimientos'}</td>
+                    <td>${t.descripcion || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function saveTicket() {
+            const fecha = document.getElementById('ticket-fecha').value;
+            const sistema = document.getElementById('ticket-sistema').value;
+            const descripcion = document.getElementById('ticket-descripcion').value;
+            if (!fecha || !sistema) { return; }
+            try {
+                const res = await fetch('/api/tickets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fecha, sistema, descripcion })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    document.getElementById('ticketForm').reset();
+                    loadTickets();
+                }
+            } catch(e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>
+

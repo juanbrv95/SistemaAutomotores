@@ -1,0 +1,81 @@
+[
+  {
+    "nombre": "Tomas",
+    "apellido": "Perez",
+    "rut": "1",
+    "vehiculos": [
+      {
+        "marca": "Renault",
+        "modelo": "Kwid",
+        "kilometraje": 100000,
+        "fecha_registro": "20/09/2025"
+      }
+    ],
+    "historial_mantenimiento": []
+  },
+  {
+    "nombre": "Laura",
+    "apellido": "Baez",
+    "rut": "2",
+    "vehiculos": [
+      {
+        "marca": "Renault",
+        "modelo": "Kangoo",
+        "kilometraje": 200000,
+        "fecha_registro": "20/09/2025"
+      }
+    ],
+    "historial_mantenimiento": []
+  },
+  {
+    "nombre": "Pablo",
+    "apellido": "Gutierrez",
+    "rut": "3",
+    "vehiculos": [
+      {
+        "marca": "Renault",
+        "modelo": "Logan",
+        "kilometraje": 300000,
+        "fecha_registro": "20/09/2025"
+      },
+      {
+        "marca": "Fiat",
+        "modelo": "Mobi",
+        "kilometraje": 500000,
+        "fecha_registro": "20/09/2025"
+      }
+    ],
+    "historial_mantenimiento": []
+  },
+  {
+    "nombre": "Camila",
+    "apellido": "Gonzalez",
+    "rut": "4",
+    "vehiculos": [
+      {
+        "marca": "Fiat",
+        "modelo": "Cronos",
+        "kilometraje": 400150,
+        "fecha_registro": "20/09/2025"
+      }
+    ],
+    "historial_mantenimiento": [
+      {
+        "fecha": "20/09/2025",
+        "vehiculo": "Fiat Cronos",
+        "kilometraje_anterior": 400000,
+        "kilometraje_actual": 400150,
+        "tipo_mantenimiento": "Cambio de aceite",
+        "descripcion": "Limpieza y cambio de aceite.",
+        "costo": "20000"
+      }
+    ]
+  },
+  {
+    "nombre": "Lautaro",
+    "apellido": "Fonseca",
+    "rut": "5",
+    "vehiculos": [],
+    "historial_mantenimiento": []
+  }
+]

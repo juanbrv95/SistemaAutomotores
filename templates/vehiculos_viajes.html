@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 Sistema de Viajes - Sistema Automotores</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-car-front-fill me-2"></i>
+                Sistema Automotores
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-speedometer2 me-1"></i><span style="color: #ff8c00; font-weight: 600;">Facultad de Agronomía</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/propietarios">
+                            <i class="bi bi-people me-1"></i>FAUBA
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/vehiculos-viajes">
+                            <i class="bi bi-car-front me-1"></i>Vehículos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mantenimientos">
+                            <i class="bi bi-tools me-1"></i>Mantenimientos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/presupuesto">
+                            <i class="bi bi-currency-dollar me-1"></i>Presupuesto
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="bi bi-geo-alt me-2"></i>Sistema de Viajes
+                    </h2>
+                    <button class="btn btn-success" onclick="showViajeModal()">
+                        <i class="bi bi-plus-circle me-1"></i>Nuevo Viaje
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="search-viajes" placeholder="Buscar viajes...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filter-estado">
+                    <option value="">Todos los estados</option>
+                    <option value="En curso">En curso</option>
+                    <option value="Completado">Completado</option>
+                    <option value="Cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filter-vehiculo">
+                    <option value="">Todos los vehículos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" onclick="applyFilters()">
+                    <i class="bi bi-funnel me-1"></i>Filtrar
+                </button>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Viajes -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="total-viajes">-</h4>
+                                <p class="card-text">Total Viajes</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-geo-alt fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="viajes-en-curso">-</h4>
+                                <p class="card-text">En Curso</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-clock fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="viajes-completados">-</h4>
+                                <p class="card-text">Completados</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-check-circle fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="total-kilometros">-</h4>
+                                <p class="card-text">Total Km</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-speedometer2 fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Viajes -->
+        <div class="row" id="viajes-container">
+            <!-- Se llenará dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Modal de Viaje -->
+    <div class="modal fade" id="viajeModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viajeModalTitle">Nuevo Viaje</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="viajeForm">
+                        <input type="hidden" id="viaje-id">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3"><i class="bi bi-car-front me-1"></i>Información del Viaje</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-vehiculo" class="form-label">Vehículo *</label>
+                                    <select class="form-select" id="viaje-vehiculo" required onchange="loadVehiculoInfo()">
+                                        <option value="">Seleccionar vehículo...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-tipo-personal" class="form-label">Tipo de Personal *</label>
+                                    <select class="form-select" id="viaje-tipo-personal" required>
+                                        <option value="">Seleccionar tipo de personal...</option>
+                                        <option value="Docente">Personal Docente</option>
+                                        <option value="No Docente">Personal No Docente</option>
+                                        <option value="Alumno">Alumno</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-persona" class="form-label">Persona Responsable *</label>
+                                    <select class="form-select" id="viaje-persona" required>
+                                        <option value="">Seleccionar persona...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-destino" class="form-label">Destino *</label>
+                                    <input type="text" class="form-control" id="viaje-destino" required placeholder="Ciudad, dirección, etc.">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-fecha-salida" class="form-label">Fecha de Salida *</label>
+                                    <input type="date" class="form-control" id="viaje-fecha-salida" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-kilometraje-salida" class="form-label">Kilometraje de Salida *</label>
+                                    <input type="number" class="form-control" id="viaje-kilometraje-salida" required min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-combustible-inicial" class="form-label">Combustible Inicial (L)</label>
+                                    <input type="number" class="form-control" id="viaje-combustible-inicial" min="0" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-observaciones" class="form-label">Observaciones</label>
+                                    <textarea class="form-control" id="viaje-observaciones" rows="3" placeholder="Detalles del viaje, pasajeros, etc."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3"><i class="bi bi-fuel-pump me-1"></i>Control de Combustible</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-fecha-llegada" class="form-label">Fecha de Llegada</label>
+                                    <input type="date" class="form-control" id="viaje-fecha-llegada">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-kilometraje-llegada" class="form-label">Kilometraje de Llegada</label>
+                                    <input type="number" class="form-control" id="viaje-kilometraje-llegada" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-combustible-final" class="form-label">Combustible Final (L)</label>
+                                    <input type="number" class="form-control" id="viaje-combustible-final" min="0" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-combustible-consumido" class="form-label">Combustible Consumido (L)</label>
+                                    <input type="number" class="form-control" id="viaje-combustible-consumido" min="0" step="0.1" readonly>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-costo-combustible" class="form-label">Costo de Combustible ($)</label>
+                                    <input type="number" class="form-control" id="viaje-costo-combustible" min="0" step="0.01">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="viaje-estado" class="form-label">Estado</label>
+                                    <select class="form-select" id="viaje-estado">
+                                        <option value="En curso">En curso</option>
+                                        <option value="Completado">Completado</option>
+                                        <option value="Cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Información del Vehículo -->
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Info del Vehículo</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="vehiculo-info">
+                                            <p class="text-muted mb-0">Seleccione un vehículo para ver su información</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="saveViaje()">Guardar Viaje</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Sistema Automotores</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Mensaje dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        let viajes = [];
+        let vehiculos = [];
+        let propietarios = [];
+        let editingViaje = null;
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadViajes();
+            loadVehiculos();
+            loadPropietarios();
+            
+            // Búsqueda en tiempo real
+            document.getElementById('search-viajes').addEventListener('input', function() {
+                filterViajes();
+            });
+            
+            // Filtros
+            document.getElementById('filter-estado').addEventListener('change', filterViajes);
+            document.getElementById('filter-vehiculo').addEventListener('change', filterViajes);
+            
+            // Calcular combustible consumido automáticamente
+            document.getElementById('viaje-combustible-inicial').addEventListener('input', calculateCombustible);
+            document.getElementById('viaje-combustible-final').addEventListener('input', calculateCombustible);
+            
+            // Cargar personas cuando cambia el tipo de personal
+            document.getElementById('viaje-tipo-personal').addEventListener('change', populatePersonaSelect);
+        });
+
+        async function loadViajes() {
+            try {
+                const response = await fetch('/api/viajes');
+                const data = await response.json();
+                
+                if (data.success) {
+                    viajes = data.data;
+                    renderViajes(viajes);
+                    updateEstadisticas();
+                } else {
+                    showToast('Error al cargar viajes: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        async function loadVehiculos() {
+            try {
+                const response = await fetch('/api/vehiculos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    vehiculos = data.data;
+                    populateVehiculoSelects();
+                }
+            } catch (error) {
+                console.log('Error al cargar vehículos:', error);
+            }
+        }
+
+        async function loadPropietarios() {
+            try {
+                const response = await fetch('/api/propietarios');
+                const data = await response.json();
+                
+                if (data.success) {
+                    propietarios = data.data;
+                    // No cargar personas hasta que se seleccione un tipo
+                }
+            } catch (error) {
+                console.log('Error al cargar personal de FAUBA:', error);
+            }
+        }
+
+        function populateVehiculoSelects() {
+            const selectViaje = document.getElementById('viaje-vehiculo');
+            const selectFilter = document.getElementById('filter-vehiculo');
+            
+            selectViaje.innerHTML = '<option value="">Seleccionar vehículo...</option>';
+            selectFilter.innerHTML = '<option value="">Todos los vehículos</option>';
+            
+            vehiculos.forEach(vehiculo => {
+                const option1 = new Option(`${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}`, vehiculo.id);
+                const option2 = new Option(`${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.patente}`, vehiculo.id);
+                
+                selectViaje.add(option1);
+                selectFilter.add(option2);
+            });
+        }
+
+        function populatePersonaSelect() {
+            const tipoPersonal = document.getElementById('viaje-tipo-personal').value;
+            const select = document.getElementById('viaje-persona');
+            select.innerHTML = '<option value="">Seleccionar persona...</option>';
+            
+            if (tipoPersonal) {
+                // Filtrar personas según el tipo seleccionado
+                // Por ahora, mostramos todas las personas de FAUBA
+                // En el futuro, se podría agregar un campo tipo_personal en la base de datos
+                propietarios.forEach(persona => {
+                    const option = new Option(`${persona.nombre} ${persona.apellido}`, persona.id);
+                select.add(option);
+            });
+            }
+        }
+        
+        // Event listener para cuando cambia el tipo de personal
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoPersonalSelect = document.getElementById('viaje-tipo-personal');
+            if (tipoPersonalSelect) {
+                tipoPersonalSelect.addEventListener('change', populatePersonaSelect);
+            }
+        });
+
+        function renderViajes(viajesList) {
+            const container = document.getElementById('viajes-container');
+            container.innerHTML = '';
+
+            if (viajesList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No hay viajes registrados
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            viajesList.forEach(viaje => {
+                const card = createViajeCard(viaje);
+                container.appendChild(card);
+            });
+        }
+
+        function createViajeCard(viaje) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 mb-4';
+            
+            const estadoClass = viaje.estado === 'Completado' ? 'success' : 
+                              viaje.estado === 'En curso' ? 'warning' : 'danger';
+            
+            const kilometrosRecorridos = viaje.kilometraje_llegada ? 
+                viaje.kilometraje_llegada - viaje.kilometraje_salida : 'En curso';
+            
+            col.innerHTML = `
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            ${viaje.destino}
+                        </h6>
+                        <span class="badge bg-${estadoClass}">${viaje.estado}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Vehículo:</small>
+                                <p class="mb-1">${viaje.vehiculo_info}</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Responsable:</small>
+                                <p class="mb-1">
+                                    ${viaje.propietario_nombre || 'N/A'}
+                                    ${viaje.tipo_personal ? `<br><span class="badge bg-info">${viaje.tipo_personal}</span>` : ''}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Salida:</small>
+                                <p class="mb-1">${new Date(viaje.fecha_salida).toLocaleDateString()}</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Llegada:</small>
+                                <p class="mb-1">${viaje.fecha_llegada ? new Date(viaje.fecha_llegada).toLocaleDateString() : 'En curso'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Km Recorridos:</small>
+                                <p class="mb-1">${kilometrosRecorridos} km</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Combustible:</small>
+                                <p class="mb-1">${viaje.combustible_consumido ? viaje.combustible_consumido + 'L' : 'N/A'}</p>
+                            </div>
+                        </div>
+                        
+                        ${viaje.observaciones ? `
+                            <div class="mb-2">
+                                <small class="text-muted">Observaciones:</small>
+                                <p class="mb-0 small">${viaje.observaciones}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>
+                                ${new Date(viaje.fecha_registro).toLocaleDateString()}
+                            </small>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="editViaje(${viaje.id})">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="completeViaje(${viaje.id})">
+                                        <i class="bi bi-check-circle me-1"></i>Completar
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteViaje(${viaje.id})">
+                                        <i class="bi bi-trash me-1"></i>Eliminar
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        function filterViajes() {
+            const searchTerm = document.getElementById('search-viajes').value.toLowerCase();
+            const estadoFilter = document.getElementById('filter-estado').value;
+            const vehiculoFilter = document.getElementById('filter-vehiculo').value;
+            
+            let filtered = viajes.filter(viaje => {
+                const matchesSearch = viaje.destino.toLowerCase().includes(searchTerm) ||
+                                    viaje.vehiculo_info.toLowerCase().includes(searchTerm) ||
+                                    viaje.propietario_nombre.toLowerCase().includes(searchTerm);
+                
+                const matchesEstado = !estadoFilter || viaje.estado === estadoFilter;
+                const matchesVehiculo = !vehiculoFilter || viaje.vehiculo_id == vehiculoFilter;
+                
+                return matchesSearch && matchesEstado && matchesVehiculo;
+            });
+            
+            renderViajes(filtered);
+        }
+
+        function applyFilters() {
+            filterViajes();
+        }
+
+        function updateEstadisticas() {
+            const totalViajes = viajes.length;
+            const viajesEnCurso = viajes.filter(v => v.estado === 'En curso').length;
+            const viajesCompletados = viajes.filter(v => v.estado === 'Completado').length;
+            const totalKilometros = viajes.reduce((sum, v) => {
+                if (v.kilometraje_llegada && v.kilometraje_salida) {
+                    return sum + (v.kilometraje_llegada - v.kilometraje_salida);
+                }
+                return sum;
+            }, 0);
+            
+            document.getElementById('total-viajes').textContent = totalViajes;
+            document.getElementById('viajes-en-curso').textContent = viajesEnCurso;
+            document.getElementById('viajes-completados').textContent = viajesCompletados;
+            document.getElementById('total-kilometros').textContent = totalKilometros.toLocaleString();
+        }
+
+        function showViajeModal(viaje = null) {
+            editingViaje = viaje;
+            const modal = new bootstrap.Modal(document.getElementById('viajeModal'));
+            const title = document.getElementById('viajeModalTitle');
+            
+            if (viaje) {
+                title.textContent = 'Editar Viaje';
+                fillViajeForm(viaje);
+            } else {
+                title.textContent = 'Nuevo Viaje';
+                document.getElementById('viajeForm').reset();
+                document.getElementById('viaje-estado').value = 'En curso';
+                document.getElementById('viaje-fecha-salida').value = new Date().toISOString().split('T')[0];
+            }
+            
+            modal.show();
+        }
+
+        function fillViajeForm(viaje) {
+            document.getElementById('viaje-id').value = viaje.id;
+            document.getElementById('viaje-vehiculo').value = viaje.vehiculo_id;
+            document.getElementById('viaje-tipo-personal').value = viaje.tipo_personal || '';
+            if (viaje.tipo_personal) {
+                populatePersonaSelect();
+                // Esperar un momento para que se cargue el select
+                setTimeout(() => {
+                    document.getElementById('viaje-persona').value = viaje.propietario_id;
+                }, 100);
+            } else {
+                document.getElementById('viaje-persona').value = viaje.propietario_id;
+            }
+            document.getElementById('viaje-destino').value = viaje.destino;
+            document.getElementById('viaje-fecha-salida').value = viaje.fecha_salida;
+            document.getElementById('viaje-fecha-llegada').value = viaje.fecha_llegada || '';
+            document.getElementById('viaje-kilometraje-salida').value = viaje.kilometraje_salida;
+            document.getElementById('viaje-kilometraje-llegada').value = viaje.kilometraje_llegada || '';
+            document.getElementById('viaje-combustible-inicial').value = viaje.combustible_inicial || '';
+            document.getElementById('viaje-combustible-final').value = viaje.combustible_final || '';
+            document.getElementById('viaje-combustible-consumido').value = viaje.combustible_consumido || '';
+            document.getElementById('viaje-costo-combustible').value = viaje.costo_combustible || '';
+            document.getElementById('viaje-observaciones').value = viaje.observaciones || '';
+            document.getElementById('viaje-estado').value = viaje.estado;
+            
+            loadVehiculoInfo();
+        }
+
+        function loadVehiculoInfo() {
+            const vehiculoId = document.getElementById('viaje-vehiculo').value;
+            const infoDiv = document.getElementById('vehiculo-info');
+            
+            if (vehiculoId) {
+                const vehiculo = vehiculos.find(v => v.id == vehiculoId);
+                if (vehiculo) {
+                    infoDiv.innerHTML = `
+                        <p class="mb-1"><strong>Marca:</strong> ${vehiculo.marca}</p>
+                        <p class="mb-1"><strong>Modelo:</strong> ${vehiculo.modelo}</p>
+                        <p class="mb-1"><strong>Patente:</strong> ${vehiculo.patente || 'N/A'}</p>
+                        <p class="mb-0"><strong>Km Actual:</strong> ${vehiculo.kilometraje.toLocaleString()} km</p>
+                    `;
+                    
+                    // El propietario se seleccionará manualmente según el tipo de personal
+                    
+                    // Establecer el kilometraje de salida
+                    document.getElementById('viaje-kilometraje-salida').value = vehiculo.kilometraje;
+                }
+            } else {
+                infoDiv.innerHTML = '<p class="text-muted mb-0">Seleccione un vehículo para ver su información</p>';
+            }
+        }
+
+        function calculateCombustible() {
+            const inicial = parseFloat(document.getElementById('viaje-combustible-inicial').value) || 0;
+            const final = parseFloat(document.getElementById('viaje-combustible-final').value) || 0;
+            
+            if (inicial > 0 && final >= 0) {
+                const consumido = inicial - final;
+                document.getElementById('viaje-combustible-consumido').value = consumido.toFixed(1);
+            }
+        }
+
+        async function saveViaje() {
+            const form = document.getElementById('viajeForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const viajeData = {
+                vehiculo_id: parseInt(document.getElementById('viaje-vehiculo').value),
+                propietario_id: parseInt(document.getElementById('viaje-persona').value),
+                tipo_personal: document.getElementById('viaje-tipo-personal').value,
+                destino: document.getElementById('viaje-destino').value,
+                fecha_salida: document.getElementById('viaje-fecha-salida').value,
+                kilometraje_salida: parseInt(document.getElementById('viaje-kilometraje-salida').value),
+                combustible_inicial: parseFloat(document.getElementById('viaje-combustible-inicial').value) || null,
+                observaciones: document.getElementById('viaje-observaciones').value
+            };
+
+            // Agregar campos opcionales si tienen valor
+            const fechaLlegada = document.getElementById('viaje-fecha-llegada').value;
+            const kilometrajeLlegada = document.getElementById('viaje-kilometraje-llegada').value;
+            const combustibleFinal = document.getElementById('viaje-combustible-final').value;
+            const combustibleConsumido = document.getElementById('viaje-combustible-consumido').value;
+            const costoCombustible = document.getElementById('viaje-costo-combustible').value;
+            const estado = document.getElementById('viaje-estado').value;
+
+            if (fechaLlegada) viajeData.fecha_llegada = fechaLlegada;
+            if (kilometrajeLlegada) viajeData.kilometraje_llegada = parseInt(kilometrajeLlegada);
+            if (combustibleFinal) viajeData.combustible_final = parseFloat(combustibleFinal);
+            if (combustibleConsumido) viajeData.combustible_consumido = parseFloat(combustibleConsumido);
+            if (costoCombustible) viajeData.costo_combustible = parseFloat(costoCombustible);
+            if (estado) viajeData.estado = estado;
+            
+            // Si es edición, mantener el tipo_personal
+            if (editingViaje && editingViaje.tipo_personal) {
+                viajeData.tipo_personal = editingViaje.tipo_personal;
+            }
+
+            try {
+                let response;
+                if (editingViaje) {
+                    response = await fetch(`/api/viajes/${editingViaje.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(viajeData)
+                    });
+                } else {
+                    response = await fetch('/api/viajes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(viajeData)
+                    });
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('viajeModal')).hide();
+                    loadViajes();
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        function editViaje(id) {
+            const viaje = viajes.find(v => v.id === id);
+            if (viaje) {
+                showViajeModal(viaje);
+            }
+        }
+
+        async function completeViaje(id) {
+            const viaje = viajes.find(v => v.id === id);
+            if (viaje) {
+                viaje.estado = 'Completado';
+                showViajeModal(viaje);
+            }
+        }
+
+        async function deleteViaje(id) {
+            if (!confirm('¿Está seguro de que desea eliminar este viaje? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/viajes/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    loadViajes();
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header i');
+            
+            toastMessage.textContent = message;
+            
+            toastHeader.className = type === 'success' ? 'bi bi-check-circle-fill text-success me-2' : 
+                                   type === 'error' ? 'bi bi-exclamation-triangle-fill text-danger me-2' :
+                                   'bi bi-info-circle-fill text-info me-2';
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+</body>
+</html>

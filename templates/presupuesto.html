@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Presupuesto - Sistema Automotores</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-car-front-fill me-2"></i>
+                Sistema Automotores
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-speedometer2 me-1"></i><span style="color: #ff8c00; font-weight: 600;">Facultad de Agronomía</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/propietarios">
+                            <i class="bi bi-people me-1"></i>FAUBA
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vehiculos-viajes">
+                            <i class="bi bi-car-front me-1"></i>Vehículos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mantenimientos">
+                            <i class="bi bi-tools me-1"></i>Mantenimientos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/presupuesto">
+                            <i class="bi bi-currency-dollar me-1"></i>Presupuesto
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="bi bi-currency-dollar me-2"></i>Gestión de Presupuesto
+                    </h2>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="showMovimientoModal('ingreso')">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Ingreso
+                        </button>
+                        <button class="btn btn-danger" onclick="showMovimientoModal('egreso')">
+                            <i class="bi bi-dash-circle me-1"></i>Nuevo Egreso
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Financiero -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="total-ingresos">$0</h4>
+                                <p class="card-text">Total Ingresos</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-arrow-up-circle fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="total-egresos">$0</h4>
+                                <p class="card-text">Total Egresos</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-arrow-down-circle fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" id="balance">$0</h4>
+                                <p class="card-text">Balance</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-scale fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <a href="/tickets" class="text-decoration-none">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title" id="total-movimientos">0</h4>
+                                    <p class="card-text">Rendición de tickets</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-receipt fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-pie-chart me-2"></i>Distribución de Ingresos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ingresosChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-pie-chart me-2"></i>Distribución de Egresos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="egresosChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="search-movimientos" placeholder="Buscar movimientos...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="filter-tipo">
+                    <option value="">Todos</option>
+                    <option value="ingreso">Ingresos</option>
+                    <option value="egreso">Egresos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="filter-categoria">
+                    <option value="">Todas las categorías</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="filter-fecha-desde" placeholder="Desde">
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="filter-fecha-hasta" placeholder="Hasta">
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-outline-primary w-100" onclick="applyFilters()">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista de Movimientos -->
+        <div class="row" id="movimientos-container">
+            <!-- Se llenará dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Modal de Movimiento -->
+    <div class="modal fade" id="movimientoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="movimientoModalTitle">Nuevo Movimiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="movimientoForm">
+                        <input type="hidden" id="movimiento-id">
+                        <input type="hidden" id="movimiento-tipo">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-1"></i>Información del Movimiento</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-categoria" class="form-label">Categoría *</label>
+                                    <select class="form-select" id="movimiento-categoria" required>
+                                        <option value="">Seleccionar categoría...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-descripcion" class="form-label">Descripción *</label>
+                                    <input type="text" class="form-control" id="movimiento-descripcion" required placeholder="Descripción del movimiento">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-monto" class="form-label">Monto *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="movimiento-monto" required min="0" step="0.01" placeholder="0.00">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-fecha" class="form-label">Fecha *</label>
+                                    <input type="date" class="form-control" id="movimiento-fecha" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3"><i class="bi bi-credit-card me-1"></i>Información Adicional</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-metodo-pago" class="form-label">Método de Pago</label>
+                                    <select class="form-select" id="movimiento-metodo-pago">
+                                        <option value="">Seleccionar método...</option>
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                        <option value="Transferencia">Transferencia</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="movimiento-referencia" class="form-label">Referencia</label>
+                                    <input type="text" class="form-control" id="movimiento-referencia" placeholder="Número de transacción, cheque, etc.">
+                                </div>
+                                
+                                <!-- Información del Tipo de Movimiento -->
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0" id="tipo-movimiento-info">
+                                            <i class="bi bi-info-circle me-1"></i>Información del Movimiento
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="tipo-movimiento-details">
+                                            <p class="text-muted mb-0">Seleccione el tipo de movimiento</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMovimiento()">Guardar Movimiento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Sistema Automotores</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Mensaje dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        let movimientos = [];
+        let estadisticas = {};
+        let editingMovimiento = null;
+        let ingresosChart = null;
+        let egresosChart = null;
+
+        // Categorías predefinidas
+        const categoriasIngresos = [
+            'Servicios de Mantenimiento',
+            'Venta de Repuestos',
+            'Consultoría',
+            'Otros Ingresos'
+        ];
+
+        const categoriasEgresos = [
+            'Mantenimiento de Vehículos',
+            'Combustible',
+            'Repuestos',
+            'Salarios',
+            'Alquiler',
+            'Servicios Públicos',
+            'Marketing',
+            'Seguros',
+            'Impuestos',
+            'Otros Egresos'
+        ];
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMovimientos();
+            loadEstadisticas();
+            
+            // Búsqueda en tiempo real
+            document.getElementById('search-movimientos').addEventListener('input', function() {
+                filterMovimientos();
+            });
+            
+            // Filtros
+            document.getElementById('filter-tipo').addEventListener('change', filterMovimientos);
+            document.getElementById('filter-categoria').addEventListener('change', filterMovimientos);
+            document.getElementById('filter-fecha-desde').addEventListener('change', filterMovimientos);
+            document.getElementById('filter-fecha-hasta').addEventListener('change', filterMovimientos);
+            
+            // Establecer fecha por defecto
+            document.getElementById('movimiento-fecha').value = new Date().toISOString().split('T')[0];
+        });
+
+        async function loadMovimientos() {
+            try {
+                const response = await fetch('/api/presupuesto');
+                const data = await response.json();
+                
+                if (data.success) {
+                    movimientos = data.data;
+                    renderMovimientos(movimientos);
+                    updateEstadisticas();
+                    populateCategoriaFilter();
+                } else {
+                    showToast('Error al cargar movimientos: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        async function loadEstadisticas() {
+            try {
+                const response = await fetch('/api/presupuesto/estadisticas');
+                const data = await response.json();
+                
+                if (data.success) {
+                    estadisticas = data.data;
+                    updateResumenFinanciero();
+                    createCharts();
+                }
+            } catch (error) {
+                console.log('Error al cargar estadísticas:', error);
+            }
+        }
+
+        function updateResumenFinanciero() {
+            document.getElementById('total-ingresos').textContent = '$' + estadisticas.total_ingresos.toLocaleString();
+            document.getElementById('total-egresos').textContent = '$' + estadisticas.total_egresos.toLocaleString();
+            document.getElementById('balance').textContent = '$' + estadisticas.balance.toLocaleString();
+            document.getElementById('total-movimientos').textContent = movimientos.length;
+        }
+
+        function createCharts() {
+            // Gráfico de Ingresos
+            const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
+            if (ingresosChart) ingresosChart.destroy();
+            
+            ingresosChart = new Chart(ingresosCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: estadisticas.ingresos_por_categoria.map(item => item.categoria),
+                    datasets: [{
+                        data: estadisticas.ingresos_por_categoria.map(item => item.total),
+                        backgroundColor: [
+                            '#28a745',
+                            '#20c997',
+                            '#17a2b8',
+                            '#6f42c1',
+                            '#fd7e14',
+                            '#e83e8c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Egresos
+            const egresosCtx = document.getElementById('egresosChart').getContext('2d');
+            if (egresosChart) egresosChart.destroy();
+            
+            egresosChart = new Chart(egresosCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: estadisticas.egresos_por_categoria.map(item => item.categoria),
+                    datasets: [{
+                        data: estadisticas.egresos_por_categoria.map(item => item.total),
+                        backgroundColor: [
+                            '#dc3545',
+                            '#fd7e14',
+                            '#ffc107',
+                            '#6f42c1',
+                            '#e83e8c',
+                            '#20c997',
+                            '#17a2b8',
+                            '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateCategoriaFilter() {
+            const select = document.getElementById('filter-categoria');
+            const categorias = [...new Set(movimientos.map(m => m.categoria))];
+            
+            select.innerHTML = '<option value="">Todas las categorías</option>';
+            categorias.forEach(categoria => {
+                const option = new Option(categoria, categoria);
+                select.add(option);
+            });
+        }
+
+        function renderMovimientos(movimientosList) {
+            const container = document.getElementById('movimientos-container');
+            container.innerHTML = '';
+
+            if (movimientosList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No hay movimientos registrados
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            movimientosList.forEach(movimiento => {
+                const card = createMovimientoCard(movimiento);
+                container.appendChild(card);
+            });
+        }
+
+        function createMovimientoCard(movimiento) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 mb-4';
+            
+            const isIngreso = movimiento.tipo_movimiento === 'ingreso';
+            const cardClass = isIngreso ? 'border-success' : 'border-danger';
+            const iconClass = isIngreso ? 'bi-arrow-up-circle text-success' : 'bi-arrow-down-circle text-danger';
+            const badgeClass = isIngreso ? 'bg-success' : 'bg-danger';
+            
+            col.innerHTML = `
+                <div class="card h-100 shadow-sm ${cardClass}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi ${iconClass} me-1"></i>
+                            ${movimiento.categoria}
+                        </h6>
+                        <span class="badge ${badgeClass}">${movimiento.tipo_movimiento.toUpperCase()}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <small class="text-muted">Descripción:</small>
+                                <p class="mb-1">${movimiento.descripcion}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Monto:</small>
+                                <p class="mb-1 fw-bold">$${movimiento.monto.toLocaleString()}</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Fecha:</small>
+                                <p class="mb-1">${new Date(movimiento.fecha_movimiento).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Método:</small>
+                                <p class="mb-1">${movimiento.metodo_pago || 'No especificado'}</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Referencia:</small>
+                                <p class="mb-1">${movimiento.referencia || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>
+                                ${new Date(movimiento.fecha_registro).toLocaleDateString()}
+                            </small>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="editMovimiento(${movimiento.id})">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteMovimiento(${movimiento.id})">
+                                        <i class="bi bi-trash me-1"></i>Eliminar
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        function filterMovimientos() {
+            const searchTerm = document.getElementById('search-movimientos').value.toLowerCase();
+            const tipoFilter = document.getElementById('filter-tipo').value;
+            const categoriaFilter = document.getElementById('filter-categoria').value;
+            const fechaDesde = document.getElementById('filter-fecha-desde').value;
+            const fechaHasta = document.getElementById('filter-fecha-hasta').value;
+            
+            let filtered = movimientos.filter(movimiento => {
+                const matchesSearch = movimiento.descripcion.toLowerCase().includes(searchTerm) ||
+                                    movimiento.categoria.toLowerCase().includes(searchTerm) ||
+                                    (movimiento.referencia && movimiento.referencia.toLowerCase().includes(searchTerm));
+                
+                const matchesTipo = !tipoFilter || movimiento.tipo_movimiento === tipoFilter;
+                const matchesCategoria = !categoriaFilter || movimiento.categoria === categoriaFilter;
+                
+                const fechaMovimiento = new Date(movimiento.fecha_movimiento);
+                const matchesFechaDesde = !fechaDesde || fechaMovimiento >= new Date(fechaDesde);
+                const matchesFechaHasta = !fechaHasta || fechaMovimiento <= new Date(fechaHasta);
+                
+                return matchesSearch && matchesTipo && matchesCategoria && matchesFechaDesde && matchesFechaHasta;
+            });
+            
+            renderMovimientos(filtered);
+        }
+
+        function applyFilters() {
+            filterMovimientos();
+        }
+
+        function showMovimientoModal(tipo = null, movimiento = null) {
+            editingMovimiento = movimiento;
+            const modal = new bootstrap.Modal(document.getElementById('movimientoModal'));
+            const title = document.getElementById('movimientoModalTitle');
+            const tipoInput = document.getElementById('movimiento-tipo');
+            const tipoInfo = document.getElementById('tipo-movimiento-info');
+            const tipoDetails = document.getElementById('tipo-movimiento-details');
+            
+            if (movimiento) {
+                title.textContent = 'Editar Movimiento';
+                fillMovimientoForm(movimiento);
+            } else {
+                title.textContent = tipo === 'ingreso' ? 'Nuevo Ingreso' : 'Nuevo Egreso';
+                document.getElementById('movimientoForm').reset();
+                document.getElementById('movimiento-fecha').value = new Date().toISOString().split('T')[0];
+                tipoInput.value = tipo;
+                populateCategoriaSelect(tipo);
+                updateTipoInfo(tipo);
+            }
+            
+            modal.show();
+        }
+
+        function fillMovimientoForm(movimiento) {
+            document.getElementById('movimiento-id').value = movimiento.id;
+            document.getElementById('movimiento-tipo').value = movimiento.tipo_movimiento;
+            document.getElementById('movimiento-categoria').value = movimiento.categoria;
+            document.getElementById('movimiento-descripcion').value = movimiento.descripcion;
+            document.getElementById('movimiento-monto').value = movimiento.monto;
+            document.getElementById('movimiento-fecha').value = movimiento.fecha_movimiento;
+            document.getElementById('movimiento-metodo-pago').value = movimiento.metodo_pago || '';
+            document.getElementById('movimiento-referencia').value = movimiento.referencia || '';
+            
+            populateCategoriaSelect(movimiento.tipo_movimiento);
+            updateTipoInfo(movimiento.tipo_movimiento);
+        }
+
+        function populateCategoriaSelect(tipo) {
+            const select = document.getElementById('movimiento-categoria');
+            select.innerHTML = '<option value="">Seleccionar categoría...</option>';
+            
+            const categorias = tipo === 'ingreso' ? categoriasIngresos : categoriasEgresos;
+            categorias.forEach(categoria => {
+                const option = new Option(categoria, categoria);
+                select.add(option);
+            });
+        }
+
+        function updateTipoInfo(tipo) {
+            const tipoInfo = document.getElementById('tipo-movimiento-info');
+            const tipoDetails = document.getElementById('tipo-movimiento-details');
+            
+            if (tipo === 'ingreso') {
+                tipoInfo.innerHTML = '<i class="bi bi-arrow-up-circle text-success me-1"></i>Información del Ingreso';
+                tipoDetails.innerHTML = `
+                    <p class="mb-1"><strong>Tipo:</strong> Ingreso</p>
+                    <p class="mb-1"><strong>Efecto:</strong> Aumenta el balance</p>
+                    <p class="mb-0 text-success"><strong>Impacto:</strong> Positivo en las finanzas</p>
+                `;
+            } else if (tipo === 'egreso') {
+                tipoInfo.innerHTML = '<i class="bi bi-arrow-down-circle text-danger me-1"></i>Información del Egreso';
+                tipoDetails.innerHTML = `
+                    <p class="mb-1"><strong>Tipo:</strong> Egreso</p>
+                    <p class="mb-1"><strong>Efecto:</strong> Disminuye el balance</p>
+                    <p class="mb-0 text-danger"><strong>Impacto:</strong> Negativo en las finanzas</p>
+                `;
+            }
+        }
+
+        async function saveMovimiento() {
+            const form = document.getElementById('movimientoForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const movimientoData = {
+                tipo_movimiento: document.getElementById('movimiento-tipo').value,
+                categoria: document.getElementById('movimiento-categoria').value,
+                descripcion: document.getElementById('movimiento-descripcion').value,
+                monto: parseFloat(document.getElementById('movimiento-monto').value),
+                fecha_movimiento: document.getElementById('movimiento-fecha').value,
+                metodo_pago: document.getElementById('movimiento-metodo-pago').value,
+                referencia: document.getElementById('movimiento-referencia').value
+            };
+
+            try {
+                let response;
+                if (editingMovimiento) {
+                    // En una implementación real, necesitarías una ruta PUT para actualizar
+                    showToast('Funcionalidad de edición próximamente', 'info');
+                    return;
+                } else {
+                    response = await fetch('/api/presupuesto', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(movimientoData)
+                    });
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('movimientoModal')).hide();
+                    loadMovimientos();
+                    loadEstadisticas();
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        function editMovimiento(id) {
+            const movimiento = movimientos.find(m => m.id === id);
+            if (movimiento) {
+                showMovimientoModal(null, movimiento);
+            }
+        }
+
+        async function deleteMovimiento(id) {
+            if (!confirm('¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/presupuesto/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    loadMovimientos();
+                    loadEstadisticas();
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastHeader = toast.querySelector('.toast-header i');
+            
+            toastMessage.textContent = message;
+            
+            toastHeader.className = type === 'success' ? 'bi bi-check-circle-fill text-success me-2' : 
+                                   type === 'error' ? 'bi bi-exclamation-triangle-fill text-danger me-2' :
+                                   'bi bi-info-circle-fill text-info me-2';
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+</body>
+</html>

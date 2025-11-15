@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 Sistema de Gestión de Automotores</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-car-front-fill me-2"></i>
+                Sistema Automotores
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="bi bi-speedometer2 me-1"></i><span style="color: #ff8c00; font-weight: 600;">Facultad de Agronomía</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('propietarios')">
+                            <i class="bi bi-people me-1"></i>FAUBA
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('vehiculos')">
+                            <i class="bi bi-car-front me-1"></i>Vehículos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('mantenimientos')">
+                            <i class="bi bi-tools me-1"></i>Mantenimientos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-4" style="color: #28a745;">
+                        <i class="bi bi-speedometer2 me-2"></i>Facultad de Agronomía
+                    </h2>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row mb-4" id="stats-cards">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white h-100" style="cursor: pointer; transition: transform 0.2s;"
+                         onclick="showSection('propietarios')"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title" id="total-propietarios">-</h4>
+                                    <p class="card-text">FAUBA</p>
+                                    <small class="text-light opacity-75">Ver información detallada</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white h-100" style="cursor: pointer; transition: transform 0.2s;"
+                         onclick="window.location.href='/vehiculos-viajes'"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title" id="total-vehiculos">-</h4>
+                                    <p class="card-text">Vehículos</p>
+                                    <small class="text-light opacity-75">Sistema de viajes</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-car-front fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white h-100" style="cursor: pointer; transition: transform 0.2s;"
+                         onclick="showSection('mantenimientos')"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title" id="total-mantenimientos">-</h4>
+                                    <p class="card-text">Mantenimientos</p>
+                                    <small class="text-light opacity-75">Informacion detallada</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-tools fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white h-100" style="cursor: pointer; transition: transform 0.2s;"
+                         onclick="window.location.href='/presupuesto'"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title" id="costo-total">-</h4>
+                                    <p class="card-text">Presupuesto</p>
+                                    <small class="text-light opacity-75">Gestión financiera</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-currency-dollar fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Propietarios Section -->
+        <div id="propietarios-section" class="content-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="bi bi-people me-2"></i>Gestion del sector</h2>
+                        <button class="btn btn-primary" onclick="showPropietarioModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo FAUBA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search-propietarios" placeholder="Buscar FAUBA...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Propietarios Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="propietarios-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th><span style="color:#28a745; font-weight:600;">Tipo de personal</span></th>
+                                    <th>DNI</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="propietarios-tbody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehículos Section -->
+        <div id="vehiculos-section" class="content-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="bi bi-car-front me-2"></i>Gestion de Vehiculos</h2>
+                        <button class="btn btn-success" onclick="showVehiculoModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Vehículo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search-vehiculos" placeholder="Buscar vehículos...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehículos Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="vehiculos-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Año</th>
+                                    <th>Color</th>
+                                    <th>Kilometraje</th>
+                                    <th>Patente</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehiculos-tbody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mantenimientos Section -->
+        <div id="mantenimientos-section" class="content-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="bi bi-tools me-2"></i>Gestión de Mantenimientos</h2>
+                        <button class="btn btn-warning" onclick="showMantenimientoModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Mantenimiento
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search-mantenimientos" placeholder="Buscar mantenimientos...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mantenimientos Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="mantenimientos-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Vehículo</th>
+                                    <th>Tipo</th>
+                                    <th>Costo</th>
+                                    <th>Taller</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mantenimientos-tbody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Propietario Modal -->
+    <div class="modal fade" id="propietarioModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="propietarioModalTitle">Nuevo FAUBA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="propietarioForm">
+                        <input type="hidden" id="propietario-id">
+                        <div class="mb-3">
+                            <label for="propietario-tipo-personal" class="form-label">Tipo de Personal *</label>
+                            <select class="form-select" id="propietario-tipo-personal" required>
+                                <option value="">Seleccionar tipo de personal...</option>
+                                <option value="Docente">Personal Docente</option>
+                                <option value="No Docente">Personal No Docente</option>
+                                <option value="Alumno">Alumno</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="propietario-rut" class="form-label">DNI (Número de Documento) *</label>
+                            <input type="text" class="form-control" id="propietario-rut" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="propietario-telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="propietario-telefono">
+                        </div>
+                        <div class="mb-3">
+                            <label for="propietario-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="propietario-email">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="savePropietario()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehículo Modal -->
+    <div class="modal fade" id="vehiculoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vehiculoModalTitle">Nuevo Vehículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="vehiculoForm">
+                        <input type="hidden" id="vehiculo-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="vehiculo-marca" class="form-label">Marca *</label>
+                                    <input type="text" class="form-control" id="vehiculo-marca" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehiculo-modelo" class="form-label">Modelo *</label>
+                                    <input type="text" class="form-control" id="vehiculo-modelo" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="vehiculo-año" class="form-label">Año</label>
+                                    <input type="number" class="form-control" id="vehiculo-año" min="1900" max="2025">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehiculo-color" class="form-label">Color</label>
+                                    <input type="text" class="form-control" id="vehiculo-color">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehiculo-kilometraje" class="form-label">Kilometraje</label>
+                                    <input type="number" class="form-control" id="vehiculo-kilometraje" min="0" value="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehiculo-patente" class="form-label">Patente</label>
+                                    <input type="text" class="form-control" id="vehiculo-patente">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="saveVehiculo()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mantenimiento Modal -->
+    <div class="modal fade" id="mantenimientoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mantenimientoModalTitle">Nuevo Mantenimiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mantenimientoForm">
+                        <input type="hidden" id="mantenimiento-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mantenimiento-vehiculo" class="form-label">Vehículo *</label>
+                                    <select class="form-select" id="mantenimiento-vehiculo" required>
+                                        <option value="">Seleccionar vehículo...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="mantenimiento-fecha" class="form-label">Fecha *</label>
+                                    <input type="date" class="form-control" id="mantenimiento-fecha" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="mantenimiento-tipo" class="form-label">Tipo de Mantenimiento *</label>
+                                    <input type="text" class="form-control" id="mantenimiento-tipo" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="mantenimiento-taller" class="form-label">Taller</label>
+                                    <input type="text" class="form-control" id="mantenimiento-taller">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mantenimiento-costo" class="form-label">Costo</label>
+                                    <input type="number" class="form-control" id="mantenimiento-costo" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mantenimiento-descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="mantenimiento-descripcion" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="saveMantenimiento()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Sistema Automotores</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Mensaje dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
